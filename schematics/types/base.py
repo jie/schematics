@@ -23,6 +23,7 @@ _next_position_hint = itertools.count().next
 
 
 class TypeMeta(type):
+
     """
     Meta class for BaseType. Merges `MESSAGES` dict and accumulates
     validator methods.
@@ -54,6 +55,7 @@ class TypeMeta(type):
 
 
 class BaseType(object):
+
     """
     A base class for Types in a Schematics model. Instances of this
     class may be added to subclasses of ``Model`` to define a model schema.
@@ -105,7 +107,8 @@ class BaseType(object):
         self.serialized_name = serialized_name
         self.choices = choices
 
-        self.validators = [functools.partial(v, self) for v in self._validators]
+        self.validators = [functools.partial(
+            v, self) for v in self._validators]
         if validators:
             self.validators += validators
 
@@ -165,10 +168,11 @@ class BaseType(object):
         if self.choices is not None:
             if value not in self.choices:
                 raise ValidationError(self.messages['choices']
-                    .format(unicode(self.choices)))
+                                      .format(unicode(self.choices)))
 
 
 class UUIDType(BaseType):
+
     """A field that stores a valid UUID value.
     """
 
@@ -182,6 +186,7 @@ class UUIDType(BaseType):
 
 
 class IPv4Type(BaseType):
+
     """ A field that stores a valid IPv4 address """
 
     def __init__(self, auto_fill=False, **kwargs):
@@ -224,6 +229,7 @@ class IPv4Type(BaseType):
 
 
 class StringType(BaseType):
+
     """A unicode string field. Default minimum length is one. If you want to
     accept empty strings, init with ``min_length`` 0.
     """
@@ -273,6 +279,7 @@ class StringType(BaseType):
 
 
 class URLType(StringType):
+
     """A field that validates input as an URL.
 
     If verify_exists=True is passed the validate function will make sure
@@ -310,6 +317,7 @@ class URLType(StringType):
 
 
 class EmailType(StringType):
+
     """A field that validates input as an E-Mail-Address.
     """
 
@@ -334,6 +342,7 @@ class EmailType(StringType):
 
 
 class NumberType(BaseType):
+
     """A number field.
     """
 
@@ -357,23 +366,24 @@ class NumberType(BaseType):
             value = self.number_class(value)
         except (TypeError, ValueError):
             raise ConversionError(self.messages['number_coerce']
-                .format(self.number_type.lower()))
+                                  .format(self.number_type.lower()))
 
         return value
 
-    def check_value(self, value):
+    def validate_value(self, value):
         if self.min_value is not None and value < self.min_value:
             raise ValidationError(self.messages['number_min']
-                .format(self.number_type, self.min_value))
+                                  .format(self.number_type, self.min_value))
 
         if self.max_value is not None and value > self.max_value:
             raise ValidationError(self.messages['number_max']
-                .format(self.number_type, self.max_value))
+                                  .format(self.number_type, self.max_value))
 
         return value
 
 
 class IntType(NumberType):
+
     """A field that validates input as an Integer
     """
 
@@ -384,6 +394,7 @@ class IntType(NumberType):
 
 
 class LongType(NumberType):
+
     """A field that validates input as a Long
     """
     def __init__(self, *args, **kwargs):
@@ -393,6 +404,7 @@ class LongType(NumberType):
 
 
 class FloatType(NumberType):
+
     """A field that validates input as a Float
     """
     def __init__(self, *args, **kwargs):
@@ -402,6 +414,7 @@ class FloatType(NumberType):
 
 
 class DecimalType(BaseType):
+
     """A fixed-point decimal number field.
     """
 
@@ -422,18 +435,18 @@ class DecimalType(BaseType):
 
             except (TypeError, decimal.InvalidOperation):
                 raise ConversionError(self.messages['number_coerce']
-                    .format(self.number_type))
+                                      .format(self.number_type))
 
         return value
 
     def validate_range(self, value):
         if self.min_value is not None and value < self.min_value:
             raise ValidationError(self.messages['number_min']
-                .format(self.number_type, self.min_value))
+                                  .format(self.number_type, self.min_value))
 
         if self.max_value is not None and value > self.max_value:
             raise ValidationError(self.messages['number_max']
-                .format(self.number_type, self.max_value))
+                                  .format(self.number_type, self.max_value))
 
         return value
 
@@ -456,6 +469,7 @@ class HashType(BaseType):
 
 
 class MD5Type(HashType):
+
     """A field that validates input as resembling an MD5 hash.
     """
 
@@ -463,6 +477,7 @@ class MD5Type(HashType):
 
 
 class SHA1Type(HashType):
+
     """A field that validates input as resembling an SHA1 hash.
     """
 
@@ -470,6 +485,7 @@ class SHA1Type(HashType):
 
 
 class BooleanType(BaseType):
+
     """A boolean field type. In addition to ``True`` and ``False``, coerces these
     values:
 
@@ -495,6 +511,7 @@ class BooleanType(BaseType):
 
 
 class DateType(BaseType):
+
     """Defaults to converting to and from ISO8601 date values.
     """
 
@@ -521,6 +538,7 @@ class DateType(BaseType):
 
 
 class DateTimeType(BaseType):
+
     """Defaults to converting to and from ISO8601 datetime values.
 
     :param formats:
@@ -570,6 +588,7 @@ class DateTimeType(BaseType):
 
 
 class GeoPointType(BaseType):
+
     """A list storing a latitude and longitude.
     """
 
@@ -581,12 +600,14 @@ class GeoPointType(BaseType):
         if isinstance(value, dict):
             for v in value.values():
                 if not isinstance(v, (float, int)):
-                    raise ValueError('Both values in point must be float or int')
+                    raise ValueError(
+                        'Both values in point must be float or int')
         elif isinstance(value, (list, tuple)):
             if (not isinstance(value[0], (float, int)) or
                     not isinstance(value[1], (float, int))):
                 raise ValueError('Both values in point must be float or int')
         else:
-            raise ValueError('GeoPointType can only accept tuples, lists, or dicts')
+            raise ValueError(
+                'GeoPointType can only accept tuples, lists, or dicts')
 
         return value
