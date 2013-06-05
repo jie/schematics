@@ -34,6 +34,7 @@ class MultiType(BaseType):
 
 
 class ModelType(MultiType):
+
     def __init__(self, model_class, **kwargs):
         self.model_class = model_class
         self.fields = self.model_class.fields
@@ -44,7 +45,8 @@ class ModelType(MultiType):
             model_instance.validate()
             return model_instance
 
-        super(ModelType, self).__init__(validators=[validate_model] + validators,  **kwargs)
+        super(ModelType, self).__init__(validators=[
+                                        validate_model] + validators,  **kwargs)
 
     def __repr__(self):
         return object.__repr__(self)[:-1] + ' for %s>' % self.model_class
@@ -106,11 +108,11 @@ class ModelType(MultiType):
                     )
                 if not primitive_value:
                     if not (field.serialize_when_none or
-                        (field.serialize_when_none is None and self.model_class._options.serialize_when_none)):
+                            (field.serialize_when_none is None and self.model_class._options.serialize_when_none)):
                         primitive_data.pop(serialized_name)
 
         return primitive_data if len(primitive_data) > 0 else None
-        
+
 
 EMPTY_LIST = "[]"
 # Serializing to flat dict needs to output purely primitive key value types that
@@ -128,7 +130,8 @@ class ListType(MultiType):
         self.min_size = min_size
         self.max_size = max_size
 
-        validators = [self.check_length, self.validate_items] + kwargs.pop("validators", [])
+        validators = [self.check_length, self.validate_items] + kwargs.pop(
+            "validators", [])
 
         super(ListType, self).__init__(validators=validators, **kwargs)
 
@@ -193,7 +196,7 @@ class ListType(MultiType):
                 self.field.filter_by_role(clean_value, primitive_value, role)
                 if not primitive_value:
                     if not (self.field.serialize_when_none or
-                        (self.field.serialize_when_none is None and self.model_class._options.serialize_when_none)):
+                            (self.field.serialize_when_none is None and self.model_class._options.serialize_when_none)):
                         primitive_list.remove(primitive_value)
 
         return primitive_list if len(primitive_list) > 0 else None
@@ -225,7 +228,8 @@ class DictType(MultiType):
         value = value or {}
 
         if not isinstance(value, dict):
-            raise ValidationError(u'Only dictionaries may be used in a DictType')
+            raise ValidationError(
+                u'Only dictionaries may be used in a DictType')
 
         return dict((self.coerce_key(k), self.field.convert(v))
                     for k, v in value.iteritems())
@@ -256,7 +260,7 @@ class DictType(MultiType):
 
                 if not primitive_value:
                     if not (self.field.serialize_when_none or
-                        (self.field.serialize_when_none is None and self.model_class._options.serialize_when_none)):
+                            (self.field.serialize_when_none is None and self.model_class._options.serialize_when_none)):
                         primitive_data.pop(unicode(key))
 
         return primitive_data if len(primitive_data) > 0 else None

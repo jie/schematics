@@ -46,12 +46,13 @@ def validate(model, raw_data, partial=False, strict=False, context=None):
             if not partial:
                 errors[serialized_field_name] = [field.messages['required'], ]
         else:
-            try:
-                value = field.convert(value)
-                field.validate(value)
-                data[field_name] = value
-            except BaseError as e:
-                errors[serialized_field_name] = e.messages
+            if value is not None:
+                try:
+                    value = field.convert(value)
+                    field.validate(value)
+                    data[field_name] = value
+                except BaseError as e:
+                    errors[serialized_field_name] = e.messages
 
     if strict:
         rogue_field_errors = _check_for_unknown_fields(model, data)
